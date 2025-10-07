@@ -23,15 +23,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Cache node modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
 
       - name: Setup Java JDK
         uses: actions/setup-java@v4
@@ -47,29 +38,8 @@ jobs:
         with:
           cache-read-only: false
 
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-            android/.gradle
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - name: Make gradlew executable
         run: chmod +x android/gradlew
-
-      - name: Cache Android build artifacts
-        uses: actions/cache@v4
-        with:
-          path: |
-            android/app/build
-            android/build
-          key: ${{ runner.os }}-android-build-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-android-build-
 
       - name: Decode Keystore
         env:
@@ -91,9 +61,58 @@ jobs:
           cd android
           ./gradlew assembleRelease
 
-      - name: Get tag name
+      - name: Get tag name and version code
         id: tag
-        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        run: |
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          # Extract versionCode from app.json
+          VERSION_CODE=$(cat app.json | grep -o '"versionCode":[[:space:]]*[0-9]\+' | grep -o '[0-9]\+')
+          echo "version_code=${VERSION_CODE}" >> $GITHUB_OUTPUT
+
+      - name: Get changelog from versionCode
+        id: changelog
+        run: |
+          VERSION_CODE=${{ steps.tag.outputs.version_code }}
+          echo "version_code=${VERSION_CODE}" >> $GITHUB_OUTPUT
+
+          # Read the changelog file based on versionCode
+          CHANGELOG_FILE="fastlane/metadata/android/en-US/changelogs/${VERSION_CODE}.txt"
+          if [ -f "$CHANGELOG_FILE" ]; then
+            # Read the changelog content and format it
+            CHANGELOG_CONTENT=$(cat "$CHANGELOG_FILE")
+            # Extract version and description from the first line
+            VERSION_LINE=$(echo "$CHANGELOG_CONTENT" | head -n 1)
+            VERSION=$(echo "$VERSION_LINE" | cut -d' ' -f1)
+            DESCRIPTION=$(echo "$VERSION_LINE" | cut -d'–' -f2 | sed 's/^ *//')
+            if [ -z "$DESCRIPTION" ]; then
+              DESCRIPTION=$(echo "$VERSION_LINE" | cut -d'-' -f2- | sed 's/^ *//')
+            fi
+            
+            # Extract bullet points (skip the first line)
+            BULLET_POINTS=$(echo "$CHANGELOG_CONTENT" | tail -n +2 | sed 's/^[ ]*-[ ]*/- /')
+            
+            echo "version=${VERSION}" >> $GITHUB_OUTPUT
+            echo "description=${DESCRIPTION}" >> $GITHUB_OUTPUT
+            
+            # Save bullet points to a file to preserve multiline content
+            echo "$BULLET_POINTS" > changelog_bullets.txt
+            echo "changelog_file=changelog_bullets.txt" >> $GITHUB_OUTPUT
+            
+            # Set changelog bullets as output variable for use in release body
+            echo "changelog_bullets<<EOF" >> $GITHUB_OUTPUT
+            echo "$BULLET_POINTS" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "version=${{ steps.tag.outputs.tag }}" >> $GITHUB_OUTPUT
+            echo "description=Latest Release" >> $GITHUB_OUTPUT
+            echo "- Latest improvements and bug fixes" > changelog_bullets.txt
+            echo "changelog_file=changelog_bullets.txt" >> $GITHUB_OUTPUT
+            
+            # Set default changelog bullets as output variable
+            echo "changelog_bullets<<EOF" >> $GITHUB_OUTPUT
+            echo "- Latest improvements and bug fixes" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
 
       - name: Create Release
         id: create_release
@@ -106,14 +125,11 @@ jobs:
           draft: false
           prerelease: false
           body: |
-            # 🚀 Alternate ${{ steps.tag.outputs.tag }} – Performance & UI Update
+            # 🚀 Alternate ${{ steps.tag.outputs.tag }} – ${{ steps.changelog.outputs.description }}
 
             ## ✨ What's New in ${{ steps.tag.outputs.tag }}
 
-            - Optimized avatar image loading performance for faster rendering
-            - Improved theme selection UI with streamlined button styling
-            - Enhanced base64 image handling for better memory efficiency
-            - Minor bug fixes and stability improvements
+            ${{ steps.changelog.outputs.changelog_bullets }}
 
             ## 📦 Download Options
 

@@ -3,11 +3,9 @@ package expo.modules.callerid
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.Build
 import android.provider.Settings
 import android.telephony.TelephonyManager
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import expo.modules.callerid.database.CallerEntity
@@ -27,7 +25,6 @@ class CallerIdModule : Module() {
     // Each module class must implement the definition function. The definition consists of components
     // that describes the module's functionality and behavior.
     // See https://docs.expo.dev/modules/module-api for more details about available components.
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun definition() = ModuleDefinition {
         // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
         // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
@@ -304,44 +301,76 @@ class CallerIdModule : Module() {
         }
 
         // Settings functions
-        Function("setShowPopup") { showPopup: Boolean ->
+        Function("setIncomingPopup") { showIncomingPopup: Boolean ->
             try {
-                getPreferences().edit { putBoolean("show_popup", showPopup) }
+                getPreferences().edit { putBoolean("show_incoming_popup", showIncomingPopup) }
                 true
             } catch (e: Exception) {
-                Log.e("CallerIdModule", "Error setting show popup: ${e.message}", e)
+                Log.e("CallerIdModule", "Error setting show incoming popup: ${e.message}", e)
                 false
             }
         }
 
-        Function("getShowPopup") {
+        Function("getIncomingPopup") {
             try {
-                val showPopup = getPreferences().getBoolean("show_popup", true)
-                showPopup
+                val showIncomingPopup = getPreferences().getBoolean("show_incoming_popup", true)
+                showIncomingPopup
             } catch (e: Exception) {
-                Log.e("CallerIdModule", "Error getting show popup: ${e.message}", e)
+                Log.e("CallerIdModule", "Error getting show incoming popup: ${e.message}", e)
                 true
             }
         }
 
-        // Get SIM card country code using TelephonyManager
+        Function("setOutgoingPopup") { showOutgoingPopup: Boolean ->
+            try {
+                getPreferences().edit { putBoolean("show_outgoing_popup", showOutgoingPopup) }
+                true
+            } catch (e: Exception) {
+                Log.e("CallerIdModule", "Error setting show outgoing popup: ${e.message}", e)
+                false
+            }
+        }
+
+        Function("getOutgoingPopup") {
+            try {
+                val showOutgoingPopup = getPreferences().getBoolean("show_outgoing_popup", true)
+                showOutgoingPopup
+            } catch (e: Exception) {
+                Log.e("CallerIdModule", "Error getting show outgoing popup: ${e.message}", e)
+                true
+            }
+        }
+
+        // Get the most relevant country code for dialing purposes.
         Function("getDialCountryCode") {
             try {
                 val telephonyManager =
                     context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
-                if (telephonyManager != null) {
-                    // Get SIM country ISO code (e.g., "US", "IN", "GB")
-                    val simCountryIso = telephonyManager.simCountryIso?.uppercase()
 
-                    // Return the country code, default to "IN" if null or empty
-                    return@Function if (!simCountryIso.isNullOrEmpty()) simCountryIso else "IN"
-                } else {
-                    Log.w("CallerIdModule", "TelephonyManager not available")
-                    return@Function "IN"
+                // 1. Try Network (current location)
+                val networkIso = telephonyManager?.networkCountryIso
+                if (!networkIso.isNullOrEmpty()) {
+                    return@Function networkIso.uppercase()
                 }
+
+                // 2. Try SIM (home country)
+                val simIso = telephonyManager?.simCountryIso
+                if (!simIso.isNullOrEmpty()) {
+                    return@Function simIso.uppercase()
+                }
+
+                // 3. Try Device Locale as a last resort
+                val localeIso = context.resources.configuration.locales.get(0)?.country
+                if (!localeIso.isNullOrEmpty()) {
+                    return@Function localeIso.uppercase()
+                }
+
+                // 4. Final hardcoded default
+                return@Function "IN"
+
             } catch (e: Exception) {
-                Log.e("CallerIdModule", "Error getting SIM country code: ${e.message}", e)
-                "IN"
+                Log.e("CallerIdModule", "Error getting country code: ${e.message}", e)
+                "IN" // Default on error
             }
         }
     }

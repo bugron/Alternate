@@ -13,6 +13,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
+// import android.telephony.PhoneNumberUtils
 import android.telephony.TelephonyManager
 import android.util.Base64
 import android.util.Log
@@ -50,58 +51,60 @@ class CallReceiver : BroadcastReceiver() {
             return
         }
 
-        // Check if popup display is enabled in settings
         val sharedPreferences =
             context.getSharedPreferences(context.packageName + ".settings", Context.MODE_PRIVATE)
-        val showPopup = sharedPreferences.getBoolean("show_popup", true)
-
-        if (!showPopup) {
-            return
-        }
-
+        
         val state = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
+
         when (state) {
             TelephonyManager.EXTRA_STATE_RINGING -> {
-                if (!isShowingOverlay) {
-                    // Note: EXTRA_INCOMING_NUMBER is deprecated in API 29+
-                    // For production apps targeting API 29+, consider using CallScreeningService
-                    @Suppress("DEPRECATION") var phoneNumber =
-                        intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
-                    if (phoneNumber == null) {
-                        phoneNumber = callServiceNumber
-                    }
+                val showIncomingPopup = sharedPreferences.getBoolean("show_incoming_popup", true)
+                if (isShowingOverlay || !showIncomingPopup) return
 
-                    if (phoneNumber == null) {
-                        return
-                    }
-                    isShowingOverlay = true
-
-                    getCallerName(context, phoneNumber, object : GetCallerHandler {
-                        override fun onGetCaller(callerInfo: CallerInfo?) {
-                            if (callerInfo != null) {
-                                showCallerInfo(
-                                    context,
-                                    callerInfo.name,
-                                    callerInfo.appointment,
-                                    callerInfo.location,
-                                    callerInfo.prefix,
-                                    callerInfo.suffix,
-                                    callerInfo.photo
-                                )
-                            }
-                        }
-                    })
-                }
+                @Suppress("DEPRECATION")
+                val phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER) ?: callServiceNumber ?: return
+                
+                isShowingOverlay = true
+                showCallerInfoForNumber(context, phoneNumber)
             }
 
-            TelephonyManager.EXTRA_STATE_OFFHOOK, TelephonyManager.EXTRA_STATE_IDLE -> {
-                if (isShowingOverlay) {
-                    isShowingOverlay = false
-                    callServiceNumber = null
-                    dismissCallerInfo(context)
-                }
+            TelephonyManager.EXTRA_STATE_OFFHOOK -> {
+                val showOutgoingPopup = sharedPreferences.getBoolean("show_outgoing_popup", true)
+                if (isShowingOverlay || !showOutgoingPopup) return
+                
+                @Suppress("DEPRECATION")
+                val phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER) ?: callServiceNumber ?: return
+
+                isShowingOverlay = true
+                showCallerInfoForNumber(context, phoneNumber)
+            }
+
+            TelephonyManager.EXTRA_STATE_IDLE -> {
+                if(!isShowingOverlay) return
+                isShowingOverlay = false
+                callServiceNumber = null // Reset the number
+                dismissCallerInfo(context)
             }
         }
+    }
+
+    // Helper function to avoid code duplication
+    private fun showCallerInfoForNumber(context: Context, phoneNumber: String) {
+        getCallerName(context, phoneNumber, object : GetCallerHandler {
+            override fun onGetCaller(callerInfo: CallerInfo?) {
+                callerInfo?.let {
+                    showCallerInfo(
+                        context,
+                        it.name,
+                        it.appointment,
+                        it.location,
+                        it.prefix,
+                        it.suffix,
+                        it.photo
+                    )
+                }
+            }
+        })
     }
 
     private fun getApplicationName(context: Context): String {
@@ -128,7 +131,7 @@ class CallReceiver : BroadcastReceiver() {
 
         Handler(Looper.getMainLooper()).postDelayed({
             // Check if device is locked and wake it up if needed
-            val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+            context.getSystemService(Context.POWER_SERVICE) as PowerManager
             val keyguardManager =
                 context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
@@ -157,10 +160,12 @@ class CallReceiver : BroadcastReceiver() {
             // Handle flags for lock screen display across different API levels
             val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                 // For API 27+, use combination of flags for lock screen display
-                @Suppress("DEPRECATION") WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                @Suppress("DEPRECATION")
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
             } else {
                 // For older versions, use the deprecated flags with suppression
-                @Suppress("DEPRECATION") WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                @Suppress("DEPRECATION")
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
             }
 
             val params = WindowManager.LayoutParams(
@@ -186,7 +191,7 @@ class CallReceiver : BroadcastReceiver() {
                 // Add view to window manager
                 windowManager.addView(overlayView, params)
             }
-        }, 1000)
+        }, 500)
     }
 
     private fun fillLayout(
@@ -324,16 +329,39 @@ class CallReceiver : BroadcastReceiver() {
         }
     }
 
+    private fun getCorrectedPhoneNumber(phoneNumber: String, context: Context): String {
+        return try {
+            val telephonyManager =
+                context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+            val countryISO = telephonyManager?.networkCountryIso?.uppercase()
+                ?: telephonyManager?.simCountryIso?.uppercase()
+                ?: return phoneNumber
+            // val correctedPhoneNumber = PhoneNumberUtils.formatNumberToE164(phoneNumber, countryISO)
+
+            when {
+                phoneNumber.startsWith("+") -> phoneNumber.removePrefix("+")
+                phoneNumber.startsWith("0") && countryISO != "IT" -> phoneNumber.removePrefix("0")
+                else -> phoneNumber
+            }
+
+        } catch (e: Exception) {
+            Log.e("CallReceiver", "Error getting corrected phone number", e)
+            return phoneNumber
+        }
+    }
+
     private fun getCallerName(
         context: Context, phoneNumberInString: String, callback: GetCallerHandler
     ) {
         try {
-            // Remove leading + if present
-            val correctedPhoneNumber = if (phoneNumberInString.startsWith("+")) {
-                phoneNumberInString.substring(1)
-            } else {
-                phoneNumberInString
-            }
+            // Old Method
+            // val correctedPhoneNumber = if (phoneNumberInString.startsWith("+")) {
+            //     phoneNumberInString.substring(1)
+            // } else {
+            //     phoneNumberInString
+            // }
+
+            val correctedPhoneNumber = getCorrectedPhoneNumber(phoneNumberInString, context)
 
             // Use Room database to get caller information synchronously
             val callerRepository = CallerRepository(context)

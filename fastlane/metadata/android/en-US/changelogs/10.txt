@@ -1,0 +1,10 @@
+v2.3.3 - Enhanced Caller ID & UI Improvements
+ - Added separate popup controls for incoming and outgoing calls
+ - Enhanced caller ID detection now supports both incoming and outgoing calls  
+ - Improved contact preview UI with modern card-based design
+ - Updated theme selection with refined segmented buttons and color scheme
+ - Optimized contact grouping with improved name formatting logic
+ - Fixed location field display capitalization in edit contact screen
+ - Enhanced phone number correction algorithm with better country detection
+ - Improved UI consistency across contact item selections
+ - Code quality improvements with better type safety and formatting
