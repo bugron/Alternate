@@ -18,6 +18,7 @@ import android.telephony.TelephonyManager
 import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageButton
@@ -44,6 +45,16 @@ class CallReceiver : BroadcastReceiver() {
         private var isShowingOverlay = false
         private var overlay: WeakReference<View>? = null
         var callServiceNumber: String? = null
+
+        // Variables for collapse functionality
+        private var isCollapsed = false
+        private var collapsedWidth = 60 // Width of collapsed popup visible from edge
+
+        // Variables for dragging functionality
+        private var initialX = 0
+        private var initialY = 0
+        private var initialTouchX = 0f
+        private var initialTouchY = 0f
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -53,7 +64,7 @@ class CallReceiver : BroadcastReceiver() {
 
         val sharedPreferences =
             context.getSharedPreferences(context.packageName + ".settings", Context.MODE_PRIVATE)
-        
+
         val state = intent.getStringExtra(TelephonyManager.EXTRA_STATE)
 
         when (state) {
@@ -62,8 +73,9 @@ class CallReceiver : BroadcastReceiver() {
                 if (isShowingOverlay || !showIncomingPopup) return
 
                 @Suppress("DEPRECATION")
-                val phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER) ?: callServiceNumber ?: return
-                
+                val phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
+                    ?: callServiceNumber ?: return
+
                 isShowingOverlay = true
                 showCallerInfoForNumber(context, phoneNumber)
             }
@@ -71,16 +83,17 @@ class CallReceiver : BroadcastReceiver() {
             TelephonyManager.EXTRA_STATE_OFFHOOK -> {
                 val showOutgoingPopup = sharedPreferences.getBoolean("show_outgoing_popup", true)
                 if (isShowingOverlay || !showOutgoingPopup) return
-                
+
                 @Suppress("DEPRECATION")
-                val phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER) ?: callServiceNumber ?: return
+                val phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
+                    ?: callServiceNumber ?: return
 
                 isShowingOverlay = true
                 showCallerInfoForNumber(context, phoneNumber)
             }
 
             TelephonyManager.EXTRA_STATE_IDLE -> {
-                if(!isShowingOverlay) return
+                if (!isShowingOverlay) return
                 isShowingOverlay = false
                 callServiceNumber = null // Reset the number
                 dismissCallerInfo(context)
@@ -175,6 +188,12 @@ class CallReceiver : BroadcastReceiver() {
                 flags,
                 PixelFormat.TRANSLUCENT
             )
+
+            // Set initial position and gravity
+            params.gravity = android.view.Gravity.CENTER
+            params.x = 0
+            params.y = 0
+
             overlay?.get()?.let { overlayView ->
                 // Fill layout with data first
                 fillLayout(
@@ -188,10 +207,57 @@ class CallReceiver : BroadcastReceiver() {
                     callerPhoto
                 )
 
+                // Set up draggable functionality
+                setupDraggableOverlay(overlayView, windowManager, params)
+
                 // Add view to window manager
                 windowManager.addView(overlayView, params)
             }
         }, 500)
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupDraggableOverlay(
+        overlayView: View,
+        windowManager: WindowManager,
+        params: WindowManager.LayoutParams
+    ) {
+        overlayView.setOnTouchListener { _, event ->
+            // Don't allow dragging when collapsed - clicking should expand instead
+            if (isCollapsed) {
+                return@setOnTouchListener false
+            }
+
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    // Store initial position
+                    initialX = params.x
+                    initialY = params.y
+                    initialTouchX = event.rawX
+                    initialTouchY = event.rawY
+                    true
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    // Calculate new position
+                    val deltaX = (event.rawX - initialTouchX).toInt()
+                    val deltaY = (event.rawY - initialTouchY).toInt()
+
+                    params.x = initialX + deltaX
+                    params.y = initialY + deltaY
+
+                    // Update the overlay position
+                    try {
+                        windowManager.updateViewLayout(overlayView, params)
+                    } catch (e: Exception) {
+                        Log.e("CallReceiver", "Error updating overlay position", e)
+                    }
+                    true
+                }
+
+                else -> false
+            }
+        }
     }
 
     private fun fillLayout(
@@ -214,6 +280,22 @@ class CallReceiver : BroadcastReceiver() {
                 }
             } catch (e: Exception) {
                 Log.e("CallReceiver", "Error setting close button listener", e)
+            }
+
+            // Set collapse button listener
+            try {
+                val collapseButton = overlayView.findViewById<ImageButton>(R.id.collapse_btn)
+                collapseButton?.setOnClickListener {
+                    val windowManager =
+                        context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+                    if (isCollapsed) {
+                        expandPopup(overlayView, windowManager)
+                    } else {
+                        collapsePopup(overlayView, windowManager)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("CallReceiver", "Error setting collapse button listener", e)
             }
 
             // Set app name
@@ -314,6 +396,61 @@ class CallReceiver : BroadcastReceiver() {
         }
     }
 
+    private fun collapsePopup(overlayView: View, windowManager: WindowManager) {
+        try {
+            val params = overlayView.layoutParams as WindowManager.LayoutParams
+            val displayMetrics = overlayView.context.resources.displayMetrics
+            val screenWidth = displayMetrics.widthPixels
+
+            // Move popup to right edge with only a small portion visible
+            params.width = WindowManager.LayoutParams.WRAP_CONTENT
+            params.x = screenWidth - collapsedWidth
+            params.gravity = android.view.Gravity.TOP or android.view.Gravity.START
+
+            // Hide all content except the app icon area for the collapsed state
+            val mainCard = overlayView.findViewById<View>(R.id.main_card)
+            mainCard?.alpha = 0.8f
+
+            // Update layout parameters
+            windowManager.updateViewLayout(overlayView, params)
+            isCollapsed = true
+
+            // Set up click listener for expansion on the collapsed view
+            overlayView.setOnClickListener {
+                expandPopup(overlayView, windowManager)
+            }
+
+        } catch (e: Exception) {
+            Log.e("CallReceiver", "Error collapsing popup", e)
+        }
+    }
+
+    private fun expandPopup(overlayView: View, windowManager: WindowManager) {
+        try {
+            val params = overlayView.layoutParams as WindowManager.LayoutParams
+
+            // Restore popup to full width
+            params.width = WindowManager.LayoutParams.MATCH_PARENT
+            params.x = 0
+            params.gravity = android.view.Gravity.CENTER
+
+            // Restore full opacity
+            val mainCard = overlayView.findViewById<View>(R.id.main_card)
+            mainCard?.alpha = 1.0f
+
+            // Update layout parameters
+            windowManager.updateViewLayout(overlayView, params)
+            isCollapsed = false
+
+            // Remove the click listener and restore dragging functionality
+            overlayView.setOnClickListener(null)
+            setupDraggableOverlay(overlayView, windowManager, params)
+
+        } catch (e: Exception) {
+            Log.e("CallReceiver", "Error expanding popup", e)
+        }
+    }
+
     private fun dismissCallerInfo(context: Context) {
         Handler(Looper.getMainLooper()).post {
             overlay?.get()?.let { overlayView ->
@@ -326,6 +463,7 @@ class CallReceiver : BroadcastReceiver() {
                 }
             }
             overlay = null
+            isCollapsed = false // Reset collapsed state
         }
     }
 

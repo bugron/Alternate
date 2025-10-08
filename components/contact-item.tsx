@@ -72,7 +72,7 @@ export const ContactItem: React.FC<ContactItemProps> = ({
 				{
 					backgroundColor: isSelected
 						? theme.colors.onSurfaceVariant
-						: theme.colors.surfaceVariant,
+						: theme.colors.inverseOnSurface,
 				},
 				isFirst && styles.firstItem,
 				isLast && styles.lastItem,

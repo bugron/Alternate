@@ -55,14 +55,6 @@ export default function PreviewContactScreen() {
 	// Find the contact by fullPhoneNumber
 	const contact = contacts.find((c) => c.fullPhoneNumber === fullPhoneNumber);
 
-	const fullName = getFormattedName(contact!);
-	const letter = fullName.charAt(0).toUpperCase();
-	const [avatarBackgroundColor, avatarTextColor] = getAvatarColor(
-		letter,
-		theme.dark,
-		Number(index),
-	);
-
 	if (!contact) {
 		return (
 			<View style={styles.container}>
@@ -72,6 +64,14 @@ export default function PreviewContactScreen() {
 			</View>
 		);
 	}
+
+	const fullName = getFormattedName(contact);
+	const letter = fullName.charAt(0).toUpperCase();
+	const [avatarBackgroundColor, avatarTextColor] = getAvatarColor(
+		letter,
+		theme.dark,
+		Number(index),
+	);
 
 	const handleCall = () => {
 		Linking.openURL(`tel:+${contact.fullPhoneNumber}`);
@@ -124,10 +124,10 @@ export default function PreviewContactScreen() {
 	const hideDialog = () => setOpen(false);
 
 	const handleDelete = async () => {
-		hideDialog();
 		setIsDeleting(true);
 		const success = await deleteContact(contact.fullPhoneNumber!);
 		setIsDeleting(false);
+		hideDialog();
 
 		if (success) {
 			router.back();
@@ -299,7 +299,7 @@ export default function PreviewContactScreen() {
 			<View style={styles.infoCard}>
 				<View
 					style={{
-						backgroundColor: theme.colors.surfaceVariant,
+						backgroundColor: theme.colors.inverseOnSurface,
 						borderRadius: 16,
 						borderBottomLeftRadius: 5,
 						borderBottomRightRadius: 5,
@@ -320,7 +320,7 @@ export default function PreviewContactScreen() {
 					}
 					style={[
 						{
-							backgroundColor: theme.colors.surfaceVariant,
+							backgroundColor: theme.colors.inverseOnSurface,
 							borderRadius: 5,
 						},
 						!contact.email && !contact.location && styles.bottomRadius,
@@ -352,7 +352,7 @@ export default function PreviewContactScreen() {
 						onLongPress={() => handleCopyToClipboard(contact.email!)}
 						style={[
 							{
-								backgroundColor: theme.colors.surfaceVariant,
+								backgroundColor: theme.colors.inverseOnSurface,
 								borderRadius: 5,
 							},
 							!contact.location && styles.bottomRadius,
@@ -376,7 +376,7 @@ export default function PreviewContactScreen() {
 					<Pressable
 						onLongPress={() => handleCopyToClipboard(contact.location!)}
 						style={{
-							backgroundColor: theme.colors.surfaceVariant,
+							backgroundColor: theme.colors.inverseOnSurface,
 							borderRadius: 5,
 							...styles.bottomRadius,
 						}}
@@ -426,7 +426,7 @@ export default function PreviewContactScreen() {
 			<View style={styles.infoCard}>
 				<View
 					style={{
-						backgroundColor: theme.colors.surfaceVariant,
+						backgroundColor: theme.colors.inverseOnSurface,
 						borderRadius: 16,
 						borderBottomLeftRadius: 5,
 						borderBottomRightRadius: 5,
@@ -453,7 +453,7 @@ export default function PreviewContactScreen() {
 					)}
 					style={[
 						{
-							backgroundColor: theme.colors.surfaceVariant,
+							backgroundColor: theme.colors.inverseOnSurface,
 							borderRadius: 5,
 						},
 						whatsappIsExpanded && {
@@ -469,7 +469,7 @@ export default function PreviewContactScreen() {
 						title={`Message  +${getFormattedPhoneNumber(contact)}`}
 						left={(props) => <List.Icon {...props} icon="message-outline" />}
 						onPress={handleWhatsApp}
-						style={{ backgroundColor: theme.colors.surfaceVariant }}
+						style={{ backgroundColor: theme.colors.inverseOnSurface }}
 						borderless
 					/>
 					<List.Item
@@ -477,7 +477,7 @@ export default function PreviewContactScreen() {
 						left={(props) => <List.Icon {...props} icon="phone-outline" />}
 						onPress={handleWhatsApp}
 						style={{
-							backgroundColor: theme.colors.surfaceVariant,
+							backgroundColor: theme.colors.inverseOnSurface,
 							borderBottomLeftRadius: 5,
 							borderBottomRightRadius: 5,
 						}}
@@ -496,7 +496,7 @@ export default function PreviewContactScreen() {
 					)}
 					style={[
 						{
-							backgroundColor: theme.colors.surfaceVariant,
+							backgroundColor: theme.colors.inverseOnSurface,
 							borderRadius: 5,
 							...styles.bottomRadius,
 						},
@@ -513,7 +513,7 @@ export default function PreviewContactScreen() {
 						title={`Message  +${getFormattedPhoneNumber(contact)}`}
 						left={(props) => <List.Icon {...props} icon="message-outline" />}
 						onPress={() => handleTelegram(false)}
-						style={{ backgroundColor: theme.colors.surfaceVariant }}
+						style={{ backgroundColor: theme.colors.inverseOnSurface }}
 						borderless
 					/>
 					<List.Item
@@ -521,7 +521,7 @@ export default function PreviewContactScreen() {
 						left={(props) => <List.Icon {...props} icon="phone-outline" />}
 						onPress={() => handleTelegram(true)}
 						style={{
-							backgroundColor: theme.colors.surfaceVariant,
+							backgroundColor: theme.colors.inverseOnSurface,
 							...styles.bottomRadius,
 						}}
 						borderless
@@ -534,7 +534,7 @@ export default function PreviewContactScreen() {
 				<View style={styles.infoCard}>
 					<View
 						style={{
-							backgroundColor: theme.colors.surfaceVariant,
+							backgroundColor: theme.colors.inverseOnSurface,
 							borderRadius: 16,
 							borderBottomLeftRadius: 5,
 							borderBottomRightRadius: 5,
@@ -554,7 +554,7 @@ export default function PreviewContactScreen() {
 							onLongPress={() => handleCopyToClipboard(contact.website!)}
 							style={[
 								{
-									backgroundColor: theme.colors.surfaceVariant,
+									backgroundColor: theme.colors.inverseOnSurface,
 									borderRadius: 5,
 								},
 								!contact.birthday && !contact.notes && styles.bottomRadius,
@@ -582,7 +582,7 @@ export default function PreviewContactScreen() {
 							}
 							style={[
 								{
-									backgroundColor: theme.colors.surfaceVariant,
+									backgroundColor: theme.colors.inverseOnSurface,
 									borderRadius: 5,
 								},
 								!contact.notes && styles.bottomRadius,
@@ -616,7 +616,7 @@ export default function PreviewContactScreen() {
 							onLongPress={() => handleCopyToClipboard(contact.notes!)}
 							style={[
 								{
-									backgroundColor: theme.colors.surfaceVariant,
+									backgroundColor: theme.colors.inverseOnSurface,
 									borderRadius: 5,
 								},
 								styles.bottomRadius,

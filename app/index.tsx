@@ -269,6 +269,7 @@ export default function ContactsScreen() {
 					style={[styles.fab, { bottom: insets.bottom + 16 }]}
 					label="Share"
 					mode="flat"
+					variant="secondary"
 					onPress={async () => {
 						await shareContact(selectedContacts);
 						clearSelection();
@@ -282,6 +283,7 @@ export default function ContactsScreen() {
 					style={[styles.fab, { bottom: insets.bottom + 16 }]}
 					onPress={() => router.push("/new-contact")}
 					mode="flat"
+					variant="secondary"
 				/>
 			)}
 			<Portal>

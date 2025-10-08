@@ -1,12 +1,13 @@
 import { MaterialSwitchListItem } from "@/components/material-switch-list-item";
+import Material3Avatar from "@/components/material3-avatar";
 import CallerIdModule from "@/modules/caller-id";
 import useContactStore from "@/store/contactStore";
 import useThemeStore from "@/store/themeStore";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import {
 	Button,
-	Card,
 	Dialog,
 	List,
 	Portal,
@@ -124,17 +125,36 @@ export default function SettingsScreen() {
 	};
 
 	return (
-		<View style={[styles.container, { paddingBottom: insets.bottom }]}>
+		<ScrollView
+			style={[styles.container, { paddingBottom: insets.bottom + 16 }]}
+			contentContainerStyle={{ paddingBottom: insets.bottom + 30 }}
+		>
+			<View
+				style={{
+					backgroundColor: theme.colors.inverseOnSurface,
+					borderRadius: 16,
+					borderBottomLeftRadius: 5,
+					borderBottomRightRadius: 5,
+					padding: 16,
+					marginBottom: 2,
+				}}
+			>
+				<Text
+					variant="titleMedium"
+					style={[styles.title, { color: theme.colors.onSurface }]}
+				>
+					General
+				</Text>
+			</View>
 			<MaterialSwitchListItem
 				title={"Show Incoming Popup"}
 				titleStyle={{ fontSize: 18 }}
 				listStyle={[
 					styles.listItem,
 					{
-						backgroundColor: theme.colors.surfaceVariant,
+						backgroundColor: theme.colors.inverseOnSurface,
 						marginBottom: 2,
-						borderBottomLeftRadius: 5,
-						borderBottomRightRadius: 5,
+						borderRadius: 5,
 					},
 				]}
 				switchOnIcon={"check"}
@@ -147,7 +167,7 @@ export default function SettingsScreen() {
 				listStyle={[
 					styles.listItem,
 					{
-						backgroundColor: theme.colors.surfaceVariant,
+						backgroundColor: theme.colors.inverseOnSurface,
 						marginBottom: 2,
 						borderRadius: 5,
 					},
@@ -171,7 +191,7 @@ export default function SettingsScreen() {
         listStyle={[
           styles.listItem,
           {
-            backgroundColor: theme.colors.surfaceVariant,
+            backgroundColor: theme.colors.inverseOnSurface,
             borderTopLeftRadius: 5,
             borderTopRightRadius: 5,
           },
@@ -182,7 +202,7 @@ export default function SettingsScreen() {
 				style={[
 					styles.listItem,
 					{
-						backgroundColor: theme.colors.surfaceVariant,
+						backgroundColor: theme.colors.inverseOnSurface,
 						paddingVertical: 5,
 						borderTopLeftRadius: 5,
 						borderTopRightRadius: 5,
@@ -196,13 +216,13 @@ export default function SettingsScreen() {
 					onPress={() => setOpen((state) => !state)}
 					background={{ color: "transparent" }}
 					style={{
-						backgroundColor: theme.colors.surfaceVariant,
+						backgroundColor: theme.colors.inverseOnSurface,
 					}}
 				>
 					<View
 						style={[
 							styles.themeContainer,
-							{ backgroundColor: theme.colors.surfaceVariant },
+							{ backgroundColor: theme.colors.inverseOnSurface },
 						]}
 					>
 						<SegmentedButtons
@@ -214,16 +234,16 @@ export default function SettingsScreen() {
 									label: "Light",
 									icon: "white-balance-sunny",
 									showSelectedCheck: true,
-									uncheckedColor: theme.colors.onSecondary,
-									checkedColor: theme.colors.onBackground,
+									uncheckedColor: theme.colors.onBackground,
+									checkedColor: theme.colors.onPrimaryContainer,
 									style: [
 										styles.segmentedButton,
 										styles.segmentedButtonLeft,
 										{
 											backgroundColor:
 												themeMode === "light"
-													? theme.colors.inverseOnSurface
-													: theme.colors.outline,
+													? theme.colors.primaryContainer
+													: theme.colors.surfaceVariant,
 										},
 									],
 								},
@@ -232,16 +252,16 @@ export default function SettingsScreen() {
 									label: "Dark",
 									icon: "moon-waning-crescent",
 									showSelectedCheck: true,
-									uncheckedColor: theme.colors.onSecondary,
-									checkedColor: theme.colors.onBackground,
+									uncheckedColor: theme.colors.onBackground,
+									checkedColor: theme.colors.onPrimaryContainer,
 									style: [
 										styles.segmentedButton,
 										styles.segmentedButtonMiddle,
 										{
 											backgroundColor:
 												themeMode === "dark"
-													? theme.colors.inverseOnSurface
-													: theme.colors.outline,
+													? theme.colors.primaryContainer
+													: theme.colors.surfaceVariant,
 										},
 									],
 								},
@@ -250,16 +270,16 @@ export default function SettingsScreen() {
 									label: "System",
 									icon: "laptop",
 									showSelectedCheck: true,
-									uncheckedColor: theme.colors.onSecondary,
-									checkedColor: theme.colors.onBackground,
+									uncheckedColor: theme.colors.onBackground,
+									checkedColor: theme.colors.onPrimaryContainer,
 									style: [
 										styles.segmentedButton,
 										styles.segmentedButtonRight,
 										{
 											backgroundColor:
 												themeMode === "system"
-													? theme.colors.inverseOnSurface
-													: theme.colors.outline,
+													? theme.colors.primaryContainer
+													: theme.colors.surfaceVariant,
 										},
 									],
 								},
@@ -270,21 +290,33 @@ export default function SettingsScreen() {
 			</View>
 
 			{/* VCF Import/Export Section */}
-			<Card
-				style={[
-					styles.vcfCard,
-					{ backgroundColor: theme.colors.surfaceVariant },
-				]}
-				mode="contained"
-			>
-				<Card.Content>
-					<Text style={[styles.vcfTitle, { color: theme.colors.onSurface }]}>
+			<View style={styles.vcfCard}>
+				<View
+					style={{
+						backgroundColor: theme.colors.inverseOnSurface,
+						borderRadius: 16,
+						borderBottomLeftRadius: 5,
+						borderBottomRightRadius: 5,
+						padding: 16,
+					}}
+				>
+					<Text
+						variant="titleMedium"
+						style={[styles.vcfTitle, { color: theme.colors.onSurface }]}
+					>
 						Contacts Backup
 					</Text>
-					<Text variant="bodyMedium" style={styles.vcfDescription}>
-						Import and export your contacts as VCF files
-					</Text>
+				</View>
 
+				<View
+					style={{
+						backgroundColor: theme.colors.inverseOnSurface,
+						borderRadius: 16,
+						borderTopLeftRadius: 5,
+						borderTopRightRadius: 5,
+						padding: 16,
+					}}
+				>
 					<View style={styles.vcfButtonContainer}>
 						<Button
 							mode="outlined"
@@ -315,8 +347,209 @@ export default function SettingsScreen() {
 							available
 						</Text>
 					)}
-				</Card.Content>
-			</Card>
+				</View>
+			</View>
+
+			{/* Developer and Repo Information */}
+			<View style={{ gap: 2, marginTop: 24 }}>
+				<View
+					style={{
+						backgroundColor: theme.colors.inverseOnSurface,
+						borderRadius: 16,
+						borderBottomLeftRadius: 5,
+						borderBottomRightRadius: 5,
+						padding: 16,
+					}}
+				>
+					<Text
+						variant="titleMedium"
+						style={[styles.vcfTitle, { color: theme.colors.onSurface }]}
+					>
+						Useful Links
+					</Text>
+				</View>
+				<List.Item
+					title="README"
+					description="Checkout app's README on Github"
+					left={(props) => <FontAwesome6 {...props} name="readme" size={24} />}
+					right={(props) => <List.Icon {...props} icon="chevron-right" />}
+					style={{
+						backgroundColor: theme.colors.inverseOnSurface,
+						borderRadius: 5,
+					}}
+					borderless
+					titleStyle={{ fontSize: 18 }}
+					descriptionStyle={{ opacity: 0.7 }}
+					onPress={() => {
+						Linking.openURL(
+							"https://github.com/BioHazard786/Alternate?tab=readme-ov-file",
+						);
+					}}
+				/>
+				<List.Item
+					title="Github Issues"
+					description="Create an issue on Github"
+					left={(props) => <FontAwesome6 {...props} name="github" size={24} />}
+					right={(props) => <List.Icon {...props} icon="chevron-right" />}
+					style={{
+						backgroundColor: theme.colors.inverseOnSurface,
+						borderRadius: 5,
+					}}
+					borderless
+					titleStyle={{ fontSize: 18 }}
+					descriptionStyle={{ opacity: 0.7 }}
+					onPress={() => {
+						Linking.openURL("https://github.com/BioHazard786/Alternate/issues");
+					}}
+				/>
+				<List.Item
+					title="Support Development"
+					description="Think I deserve a coffee? Click here!"
+					left={(props) => (
+						<FontAwesome6 {...props} name="hand-holding-heart" size={24} />
+					)}
+					right={(props) => <List.Icon {...props} icon="chevron-right" />}
+					style={{
+						backgroundColor: theme.colors.inverseOnSurface,
+						borderTopLeftRadius: 5,
+						borderTopRightRadius: 5,
+						borderRadius: 16,
+					}}
+					borderless
+					titleStyle={{ fontSize: 18 }}
+					descriptionStyle={{ opacity: 0.7 }}
+					onPress={() => {
+						Linking.openURL("https://github.com/sponsors/BioHazard786");
+					}}
+				/>
+			</View>
+			<View style={{ gap: 2, marginTop: 24 }}>
+				<View
+					style={{
+						backgroundColor: theme.colors.inverseOnSurface,
+						borderRadius: 16,
+						borderBottomLeftRadius: 5,
+						borderBottomRightRadius: 5,
+						padding: 16,
+					}}
+				>
+					<Text
+						variant="titleMedium"
+						style={[styles.vcfTitle, { color: theme.colors.onSurface }]}
+					>
+						Developed by
+					</Text>
+				</View>
+				<View
+					style={{
+						backgroundColor: theme.colors.inverseOnSurface,
+						borderRadius: 16,
+						borderTopLeftRadius: 5,
+						borderTopRightRadius: 5,
+						padding: 16,
+					}}
+				>
+					<View
+						style={{
+							flexDirection: "row",
+							alignItems: "center",
+							gap: 16,
+							flex: 1,
+						}}
+					>
+						<Material3Avatar
+							letter="Z"
+							backgroundColor={undefined}
+							textColor={undefined}
+							size={120}
+							photo={require("../assets/dev-profile-photo/Snake.jpg")}
+						/>
+						<View
+							style={{
+								flexDirection: "column",
+								justifyContent: "space-evenly",
+								alignItems: "flex-start",
+								flex: 1,
+								gap: 10,
+							}}
+						>
+							<Text
+								variant="titleMedium"
+								style={{ fontSize: 18, fontWeight: "600" }}
+							>
+								Mohd Zaid
+							</Text>
+							<Pressable
+								style={{
+									flexDirection: "row",
+									alignItems: "center",
+									gap: 5,
+									backgroundColor: theme.colors.surfaceVariant,
+									padding: 6,
+									paddingHorizontal: 8,
+									borderRadius: 50,
+								}}
+								onPress={() => {
+									Linking.openURL("mailto:message@zaid.qzz.io");
+								}}
+							>
+								<FontAwesome6
+									name="at"
+									size={20}
+									color={theme.colors.onSurfaceVariant}
+								/>
+								<Text variant="titleSmall">message@zaid.qzz.io</Text>
+							</Pressable>
+							<View
+								style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+							>
+								<Pressable
+									style={{
+										flexDirection: "row",
+										alignItems: "center",
+										gap: 5,
+										backgroundColor: theme.colors.surfaceVariant,
+										padding: 6,
+										paddingHorizontal: 8,
+										borderRadius: 50,
+									}}
+									onPress={() => {
+										Linking.openURL("https://github.com/BioHazard786");
+									}}
+								>
+									<FontAwesome6
+										name="github"
+										size={20}
+										color={theme.colors.onSurfaceVariant}
+									/>
+									<Text variant="titleSmall">Github</Text>
+								</Pressable>
+								<Pressable
+									style={{
+										flexDirection: "row",
+										alignItems: "center",
+										gap: 5,
+										backgroundColor: theme.colors.surfaceVariant,
+										padding: 6,
+										paddingHorizontal: 8,
+										borderRadius: 50,
+									}}
+									onPress={() => {
+										Linking.openURL("https://t.me/lulu786");
+									}}
+								>
+									<FontAwesome6
+										name="telegram"
+										size={20}
+										color={theme.colors.onSurfaceVariant}
+									/>
+									<Text variant="titleSmall">Telegram</Text>
+								</Pressable>
+							</View>
+						</View>
+					</View>
+				</View>
+			</View>
 
 			{/* Alert Dialog */}
 			<Portal>
@@ -331,7 +564,7 @@ export default function SettingsScreen() {
 					</Dialog.Actions>
 				</Dialog>
 			</Portal>
-		</View>
+		</ScrollView>
 	);
 }
 
@@ -360,14 +593,14 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 10,
 	},
 	title: {
+		fontWeight: "600",
 		fontSize: 18,
 	},
 	vcfCard: {
 		marginTop: 24,
-		borderRadius: 16,
+		gap: 2,
 	},
 	vcfTitle: {
-		marginBottom: 8,
 		fontWeight: "600",
 		fontSize: 18,
 	},

@@ -1,0 +1,12 @@
+v2.4.3 - Major UI Overhaul & Enhanced Caller ID Features
+ - Added collapsible caller ID popup with drag-to-minimize functionality
+ - Redesigned settings screen with improved categorization and visual layout
+ - Enhanced avatar component with better image handling and fallback display
+ - Improved VCF import/export with better phone number parsing and country detection
+ - Updated to latest libphonenumber-js library for enhanced phone number validation
+ - Migrated from ESLint to Biome for improved code quality and performance
+ - Enhanced contact preview UI with modernized card design
+ - Added developer profile photo assets for testing
+ - Improved code formatting and type safety across the entire codebase
+ - Better error handling and user experience in contact management
+ - Performance optimizations and dependency updates
