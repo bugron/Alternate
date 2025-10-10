@@ -1,58 +1,53 @@
 {
-  "cli": {
-    "version": ">= 16.6.1",
-    "appVersionSource": "remote"
-  },
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "android": {
-        "gradleCommand": ":app:assembleDebug"
-      }
-    },
-    "preview": {
-      "distribution": "internal",
-      "env": {
-        "APP_VARIANT": "preview"
-      },
-      "autoIncrement": true,
-      "channel": "preview"
-    },
-    "production": {
-      "autoIncrement": true,
-      "channel": "production"
-    },
-    "production-aab": {
-      "autoIncrement": true,
-      "android": {
-        "gradleCommand": ":app:bundleRelease"
-      }
-    },
-    "production-armv7": {
-      "autoIncrement": true,
-      "channel": "production",
-      "android": {
-        "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease",
-        "env": {
-          "EXPO_ANDROID_APK_SPLIT_BY_ABI": "true"
-        }
-      }
-    },
-    "production-arm64": {
-      "autoIncrement": true,
-      "channel": "production",
-      "android": {
-        "buildType": "apk",
-        "gradleCommand": ":app:assembleRelease",
-        "env": {
-          "EXPO_ANDROID_APK_SPLIT_BY_ABI": "true"
-        }
-      }
-    }
-  },
-  "submit": {
-    "production": {}
-  }
+	"cli": {
+		"version": ">= 16.6.1",
+		"appVersionSource": "remote"
+	},
+	"build": {
+		"development": {
+			"developmentClient": true,
+			"distribution": "internal",
+			"android": {
+				"gradleCommand": ":app:assembleDebug"
+			}
+		},
+		"preview": {
+			"distribution": "internal",
+			"env": {
+				"APP_VARIANT": "preview"
+			},
+			"channel": "preview"
+		},
+		"production": {
+			"channel": "production"
+		},
+		"production-aab": {
+			"android": {
+				"gradleCommand": ":app:bundleRelease"
+			}
+		},
+		"production-armv7": {
+			"channel": "production",
+			"android": {
+				"buildType": "apk",
+				"gradleCommand": ":app:assembleRelease",
+				"env": {
+					"EXPO_ANDROID_APK_SPLIT_BY_ABI": "true"
+				}
+			}
+		},
+		"production-arm64": {
+			"channel": "production",
+			"android": {
+				"buildType": "apk",
+				"gradleCommand": ":app:assembleRelease",
+				"env": {
+					"EXPO_ANDROID_APK_SPLIT_BY_ABI": "true"
+				}
+			}
+		}
+	},
+	"submit": {
+		"production": {}
+	}
 }

@@ -1,0 +1,6 @@
+v2.4.4 - Bug Fixes & Stability Improvements
+ - Fixed potential crash issues in caller ID detection module
+ - Fixed UI rendering issues on certain Android devices
+ - Enhanced compatibility with Android 14 and newer versions
+ - Minor performance optimizations and dependency updates
+ - Improved overall app stability and reliability

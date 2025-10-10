@@ -470,7 +470,7 @@ export default function SettingsScreen() {
 								justifyContent: "space-evenly",
 								alignItems: "flex-start",
 								flex: 1,
-								gap: 10,
+								gap: 8,
 							}}
 						>
 							<Text
@@ -498,54 +498,50 @@ export default function SettingsScreen() {
 									size={20}
 									color={theme.colors.onSurfaceVariant}
 								/>
-								<Text variant="titleSmall">message@zaid.qzz.io</Text>
+								<Text variant="titleSmall">Mail</Text>
 							</Pressable>
-							<View
-								style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
+							<Pressable
+								style={{
+									flexDirection: "row",
+									alignItems: "center",
+									gap: 5,
+									backgroundColor: theme.colors.surfaceVariant,
+									padding: 6,
+									paddingHorizontal: 8,
+									borderRadius: 50,
+								}}
+								onPress={() => {
+									Linking.openURL("https://github.com/BioHazard786");
+								}}
 							>
-								<Pressable
-									style={{
-										flexDirection: "row",
-										alignItems: "center",
-										gap: 5,
-										backgroundColor: theme.colors.surfaceVariant,
-										padding: 6,
-										paddingHorizontal: 8,
-										borderRadius: 50,
-									}}
-									onPress={() => {
-										Linking.openURL("https://github.com/BioHazard786");
-									}}
-								>
-									<FontAwesome6
-										name="github"
-										size={20}
-										color={theme.colors.onSurfaceVariant}
-									/>
-									<Text variant="titleSmall">Github</Text>
-								</Pressable>
-								<Pressable
-									style={{
-										flexDirection: "row",
-										alignItems: "center",
-										gap: 5,
-										backgroundColor: theme.colors.surfaceVariant,
-										padding: 6,
-										paddingHorizontal: 8,
-										borderRadius: 50,
-									}}
-									onPress={() => {
-										Linking.openURL("https://t.me/lulu786");
-									}}
-								>
-									<FontAwesome6
-										name="telegram"
-										size={20}
-										color={theme.colors.onSurfaceVariant}
-									/>
-									<Text variant="titleSmall">Telegram</Text>
-								</Pressable>
-							</View>
+								<FontAwesome6
+									name="github"
+									size={20}
+									color={theme.colors.onSurfaceVariant}
+								/>
+								<Text variant="titleSmall">Github</Text>
+							</Pressable>
+							<Pressable
+								style={{
+									flexDirection: "row",
+									alignItems: "center",
+									gap: 5,
+									backgroundColor: theme.colors.surfaceVariant,
+									padding: 6,
+									paddingHorizontal: 8,
+									borderRadius: 50,
+								}}
+								onPress={() => {
+									Linking.openURL("https://t.me/lulu786");
+								}}
+							>
+								<FontAwesome6
+									name="telegram"
+									size={20}
+									color={theme.colors.onSurfaceVariant}
+								/>
+								<Text variant="titleSmall">Telegram</Text>
+							</Pressable>
 						</View>
 					</View>
 				</View>

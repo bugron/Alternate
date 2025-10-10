@@ -1,8 +1,8 @@
 {
 	"expo": {
 		"name": "Alternate",
-		"slug": "Alternate",
-		"version": "2.4.3",
+		"slug": "alternate",
+		"version": "2.4.4",
 		"orientation": "portrait",
 		"scheme": "alternate",
 		"userInterfaceStyle": "automatic",
@@ -14,10 +14,13 @@
 				"dark": "./assets/icon/ios-dark.png",
 				"light": "./assets/icon/ios-light.png",
 				"tinted": "./assets/icon/ios-tinted.png"
+			},
+			"runtimeVersion": {
+				"policy": "appVersion"
 			}
 		},
 		"android": {
-			"versionCode": 11,
+			"versionCode": 12,
 			"adaptiveIcon": {
 				"foregroundImage": "./assets/icon/adaptive-icon.png",
 				"monochromeImage": "./assets/icon/adaptive-icon.png",
@@ -25,7 +28,12 @@
 			},
 			"icon": "./assets/icon/adaptive-icon.png",
 			"edgeToEdgeEnabled": true,
-			"package": "com.lulu786.Alternate"
+			"package": "com.lulu786.Alternate",
+			"permissions": [
+				"android.permission.RECORD_AUDIO",
+				"android.permission.RECORD_AUDIO"
+			],
+			"runtimeVersion": "1.0.0"
 		},
 		"web": {
 			"bundler": "metro",
@@ -61,8 +69,12 @@
 		"extra": {
 			"router": {},
 			"eas": {
-				"projectId": "a6216e1e-0a05-49b2-ba25-b7ea90ab8d58"
+				"projectId": "0f06f9c0-1e64-4c3a-aa39-4724ca395d4f"
 			}
+		},
+		"owner": "lulu786",
+		"updates": {
+			"url": "https://u.expo.dev/0f06f9c0-1e64-4c3a-aa39-4724ca395d4f"
 		}
 	}
 }

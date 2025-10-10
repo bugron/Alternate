@@ -1,7 +1,9 @@
+[![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/BioHazard786)
 [![IzzyOnDroid][izzyondroid-shield]][izzyondroid-url]
 [![Reproducible][reproducible-shield]][reproducible-url]
 [![Releases][releases-shield]][releases-url]
 
+[![Sponsors][sponsors-shield]][sponsors-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -14,14 +16,29 @@
 </a>
 <br />
 <br />
-<a href="https://github.com/BioHazard786/Alternate/releases">Download</a>
-    ·
     <a href="https://github.com/BioHazard786/Alternate/issues">Report Bug</a>
     ·
     <a href="https://github.com/BioHazard786/Alternate/issues">Request Feature</a>
     <br />
     <br />
 </div>
+
+<div align="center">
+   <a href="https://apt.izzysoft.de/packages/com.lulu786.Alternate">
+      <img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="170">
+   </a>
+   <a href="https://github.com/BioHazard786/Alternate/releases">
+      <img src="get-it-on-github.png" width="170">
+   </a>
+   <a href="https://www.openapk.net/alternate/com.lulu786.Alternate/">
+      <img src="https://www.openapk.net/images/openapk-badge.png" width="170">
+   </a>
+   <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/BioHazard786/Alternate/">
+      <img src="get-it-on-obtainium.png" width="170">
+   </a>
+</div>
+
+<br />
 
 # Alternate - Local Caller ID Detector
 
@@ -66,12 +83,7 @@ When you receive calls from unknown numbers but don't want to save them to your 
   <img src="./mockups/image5.png" alt="Directory Support" width="200" style="margin:10px;" />
 </p>
 
-## Download
-
-[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" width="170">](https://apt.izzysoft.de/packages/com.lulu786.Alternate)
-[<img src="get-it-on-github.png" width="170">](https://github.com/BioHazard786/Alternate/releases)
-[<img src="https://www.openapk.net/images/openapk-badge.png" width="170">](https://www.openapk.net/alternate/com.lulu786.Alternate/)
-[<img src="get-it-on-obtainium.png" width="170">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/BioHazard786/Alternate/)
+<!-- ## Download -->
 
 ## Installation
 
@@ -247,6 +259,8 @@ _Keep your contact list clean while never missing an important call again!_
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
+[sponsors-shield]: https://img.shields.io/github/sponsors/BioHazard786?label=Sponsor&style=for-the-badge
+[sponsors-url]: https://github.com/sponsors/BioHazard786
 [contributors-shield]: https://img.shields.io/github/contributors/BioHazard786/Alternate.svg?style=for-the-badge
 [contributors-url]: https://github.com/BioHazard786/Alternate/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/BioHazard786/Alternate.svg?style=for-the-badge
