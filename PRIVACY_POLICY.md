@@ -148,7 +148,7 @@ This privacy policy complies with:
 If you have any questions, concerns, or requests regarding this Privacy Policy or our privacy practices, please contact us at:
 
 **Email:** [bzatch70@gmail.com](mailto:bzatch70@gmail.com)  
-**GitHub:** [https://github.com/BioHazard786/Alternate](https://github.com/BioHazard786/Alternate)  
+**GitHub:** [https://github.com/BioHazard786](https://github.com/BioHazard786)  
 **App Repository:** [https://github.com/BioHazard786/Alternate](https://github.com/BioHazard786/Alternate)
 
 ## Technical Implementation Details

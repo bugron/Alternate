@@ -296,7 +296,7 @@ We shall not be liable for any delay or failure to perform resulting from causes
 If you have any questions about these Terms of Service, please contact us at:
 
 **Email:** [bzatch70@gmail.com](mailto:bzatch70@gmail.com)
-**GitHub:** [https://github.com/BioHazard786/Alternate](https://github.com/BioHazard786/Alternate)  
+**GitHub:** [https://github.com/BioHazard786](https://github.com/BioHazard786)  
 **Issues:** [https://github.com/BioHazard786/Alternate/issues](https://github.com/BioHazard786/Alternate/issues)
 
 ## Acknowledgment
