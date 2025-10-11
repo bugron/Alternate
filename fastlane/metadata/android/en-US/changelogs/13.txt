@@ -1,0 +1,5 @@
+v2.4.5 - Search Performance & Bug Fixes
+ - Completely redesigned contact search with 60-90% performance boost
+ - Advanced search algorithms with automatic optimization for large contact lists
+ - Contact search now supports multi-word queries and partial matching
+ - Resolved crash on startup

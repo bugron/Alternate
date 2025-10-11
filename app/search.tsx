@@ -1,15 +1,15 @@
 import { ContactItem } from "@/components/contact-item";
 import { EmptyContactsList } from "@/components/empty-contactsList";
 import { SectionHeader } from "@/components/section-header";
-import useDebounce from "@/hooks/useDebounce";
+import { useContactSearch } from "@/hooks/useContactSearch";
 import { getSectionedContacts } from "@/lib/avatar-utils";
-import { Contact, ListItem } from "@/lib/types";
+import { ListItem } from "@/lib/types";
 import useContactStore from "@/store/contactStore";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { FlashList } from "@shopify/flash-list";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import { Searchbar, useTheme } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,10 +18,11 @@ export default function SearchScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
 
-  const [searchResults, setSearchResults] = useState<Contact[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const contacts = useContactStore.use.contacts();
-  const [debouncedSearchTerm, loading] = useDebounce(searchQuery, 300);
+  
+  // Use the optimized search hook
+  const { searchResults, isSearching } = useContactSearch(contacts, searchQuery, 300);
 
   // Create sectioned data for FlashList
   const sectionedData = getSectionedContacts(searchResults);
@@ -56,36 +57,6 @@ export default function SearchScreen() {
     }
   };
 
-  useEffect(() => {
-    if (debouncedSearchTerm) {
-      const lowerTerm = debouncedSearchTerm.toLowerCase();
-      const results = contacts.filter((contact) => {
-        // Build full name from prefix, name, suffix
-        const fullName = [contact.prefix, contact.name, contact.suffix]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-
-        // Check other fields
-        const location = contact.location?.toLowerCase() || "";
-        const appointment = contact.appointment?.toLowerCase() || "";
-        const nickname = contact.nickname?.toLowerCase() || "";
-        const email = contact.email?.toLowerCase() || "";
-
-        return (
-          fullName.includes(lowerTerm) ||
-          location.includes(lowerTerm) ||
-          appointment.includes(lowerTerm) ||
-          nickname.includes(lowerTerm) ||
-          email.includes(lowerTerm)
-        );
-      });
-      setSearchResults(results);
-    } else {
-      setSearchResults([]);
-    }
-  }, [debouncedSearchTerm, contacts]);
-
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       {Platform.OS === "ios" && (
@@ -104,7 +75,7 @@ export default function SearchScreen() {
               {...props}
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
-              loading={loading}
+              loading={isSearching}
             />
           ),
         }}

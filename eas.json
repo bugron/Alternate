@@ -1,7 +1,6 @@
 {
 	"cli": {
-		"version": ">= 16.6.1",
-		"appVersionSource": "remote"
+		"version": ">= 16.6.1"
 	},
 	"build": {
 		"development": {
@@ -19,11 +18,18 @@
 			"channel": "preview"
 		},
 		"production": {
-			"channel": "production"
+			"channel": "production",
+			"android": {
+				"gradleCommand": ":app:bundleRelease"
+			}
 		},
 		"production-aab": {
 			"android": {
 				"gradleCommand": ":app:bundleRelease"
+			},
+			"env": {
+				"EXPO_USE_FAST_RESOLVER": "1",
+				"EXPO_ANDROID_APK_SPLIT_BY_ABI": "false"
 			}
 		},
 		"production-armv7": {
@@ -40,7 +46,7 @@
 			"channel": "production",
 			"android": {
 				"buildType": "apk",
-				"gradleCommand": ":app:bundleRelease",
+				"gradleCommand": ":app:assembleRelease",
 				"env": {
 					"EXPO_ANDROID_APK_SPLIT_BY_ABI": "true"
 				}
