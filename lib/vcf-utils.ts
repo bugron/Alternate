@@ -1,10 +1,11 @@
 import { getCountryByDialCode } from "@/lib/countries";
 import type { Contact } from "@/lib/types";
 import { getFormattedName } from "@/lib/utils";
+import CallerIdModule from "@/modules/caller-id";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import { shareAsync } from "expo-sharing";
-import { parsePhoneNumberWithError } from "libphonenumber-js";
+import { type CountryCode, parsePhoneNumberWithError } from "libphonenumber-js";
 import { Platform } from "react-native";
 
 /**
@@ -119,13 +120,13 @@ function unescapeVCFValue(value: string): string {
 /**
  * Parses a phone number to extract country code and number
  */
-function parsePhoneNumber(phoneStr: string): {
+function parsePhoneNumber(phoneStr: string, countryCode: string): {
 	countryCode: string;
 	phoneNumber: string;
 	fullPhoneNumber: string;
 } | null {
 	try {
-		const phoneProto = parsePhoneNumberWithError(phoneStr, "IN");
+		const phoneProto = parsePhoneNumberWithError(phoneStr, countryCode as CountryCode);
 
 		return {
 			countryCode:
@@ -148,6 +149,7 @@ function parsePhoneNumber(phoneStr: string): {
  */
 export function parseVCF(vcfContent: string): Contact[] {
 	const contacts: Contact[] = [];
+	const countryCode = CallerIdModule.getDialCountryCode();
 
 	// Normalize and unfold content in one pass
 	const processedContent = vcfContent
@@ -206,7 +208,7 @@ export function parseVCF(vcfContent: string): Contact[] {
 				}
 
 				case field.startsWith("TEL") && !contact.fullPhoneNumber: {
-					const phone = parsePhoneNumber(value);
+					const phone = parsePhoneNumber(value, countryCode);
 					if (!phone) break;
 					Object.assign(contact, phone);
 					break;
