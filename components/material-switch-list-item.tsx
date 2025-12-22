@@ -29,6 +29,7 @@ type SwitchListItemProps = {
   selected: boolean;
   onPress: () => void;
   fluid?: boolean;
+  controlled?: boolean;
   switchOnIcon?: IconSource;
   switchOffIcon?: IconSource;
   title: string;
@@ -52,6 +53,7 @@ export const MaterialSwitchListItem = ({
   switchOnIcon,
   switchOffIcon,
   fluid,
+  controlled,
   rippleColor,
   disabled,
 }: SwitchListItemProps) => {
@@ -240,6 +242,10 @@ export const MaterialSwitchListItem = ({
     }
   };
   const onTap = () => {
+    if (controlled) {
+      onSwitchPress();
+      return;
+    }
     if (active) {
       handleHeight.value = withTiming(16, {
         duration: 200,
@@ -307,6 +313,10 @@ export const MaterialSwitchListItem = ({
       description={description}
       style={listStyle}
       onPress={() => {
+        if (controlled) {
+          onSwitchPress();
+          return;
+        }
         fluid ? onTap() : changeSwitch(true);
       }}
       borderless={true}
@@ -335,7 +345,11 @@ export const MaterialSwitchListItem = ({
                   // onPressIn={() => setIsPressed(true)}
                   onPress={() => {
                     setIsPressed(true);
-                    changeSwitch(true);
+                    if (controlled) {
+                      onSwitchPress();
+                    } else {
+                      changeSwitch(true);
+                    }
                   }}
                 ></Pressable>
               </GestureDetector>
