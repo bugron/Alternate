@@ -1,0 +1,2 @@
+v2.4.7 - Bug Fixes
+ - Fixed birthday parsing error when importing contacts from VCF files with partial dates (month-day format) 
