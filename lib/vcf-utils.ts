@@ -1,12 +1,12 @@
-import { getCountryByDialCode } from "@/lib/countries";
-import type { Contact } from "@/lib/types";
-import { getFormattedName } from "@/lib/utils";
-import CallerIdModule from "@/modules/caller-id";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
 import { shareAsync } from "expo-sharing";
 import { type CountryCode, parsePhoneNumberWithError } from "libphonenumber-js";
 import { Platform } from "react-native";
+import { getCountryByDialCode } from "@/lib/countries";
+import type { Contact } from "@/lib/types";
+import { getFormattedName } from "@/lib/utils";
+import CallerIdModule from "@/modules/caller-id";
 
 /**
  * Escapes special characters in VCF fields
@@ -120,13 +120,19 @@ function unescapeVCFValue(value: string): string {
 /**
  * Parses a phone number to extract country code and number
  */
-function parsePhoneNumber(phoneStr: string, countryCode: string): {
+function parsePhoneNumber(
+	phoneStr: string,
+	countryCode: string,
+): {
 	countryCode: string;
 	phoneNumber: string;
 	fullPhoneNumber: string;
 } | null {
 	try {
-		const phoneProto = parsePhoneNumberWithError(phoneStr, countryCode as CountryCode);
+		const phoneProto = parsePhoneNumberWithError(
+			phoneStr,
+			countryCode as CountryCode,
+		);
 
 		return {
 			countryCode:
@@ -238,9 +244,19 @@ export function parseVCF(vcfContent: string): Contact[] {
 					contact.notes = value;
 					break;
 
-				case field === "BDAY":
-					contact.birthday = value;
+				case field === "BDAY": {
+					// Check if the value matches the accepted formats
+					const validDateFormat = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD
+					const validPartialDateFormat = /^--\d{2}-\d{2}$/; // --MM-DD
+
+					if (
+						validDateFormat.test(value) ||
+						validPartialDateFormat.test(value)
+					) {
+						contact.birthday = value;
+					}
 					break;
+				}
 
 				case field === "X-ANDROID-CUSTOM" &&
 					value.startsWith("vnd.android.cursor.item/nickname;"):

@@ -1,12 +1,5 @@
 /** biome-ignore-all lint/style/noNonNullAssertion: BS */
 
-import PhoneNumberInput from "@/components/phone-number-input";
-import PhotoPicker from "@/components/photo-picker";
-import { additionalFields } from "@/constants/AdditionalFields";
-import { getCountryByCode } from "@/lib/countries";
-import type { ContactFormData } from "@/lib/types";
-import { getFormattedDate, getVisibleFields, trimDialCode } from "@/lib/utils";
-import useContactStore from "@/store/contactStore";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -31,6 +24,13 @@ import {
 	useTheme,
 } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import PhoneNumberInput from "@/components/phone-number-input";
+import PhotoPicker from "@/components/photo-picker";
+import { additionalFields } from "@/constants/AdditionalFields";
+import { getCountryByCode } from "@/lib/countries";
+import type { ContactFormData } from "@/lib/types";
+import { getFormattedDate, getVisibleFields, trimDialCode } from "@/lib/utils";
+import useContactStore from "@/store/contactStore";
 
 export default function EditContactScreen() {
 	const theme = useTheme();
@@ -51,9 +51,12 @@ export default function EditContactScreen() {
 		getVisibleFields(contact!),
 	);
 	const [showDatePicker, setShowDatePicker] = useState(false);
-	const [selectedDate, setSelectedDate] = useState(() =>
-		contact?.birthday ? new Date(contact.birthday) : new Date(),
-	);
+	const [selectedDate, setSelectedDate] = useState(() => {
+		if (!contact?.birthday) return new Date();
+		else if (contact?.birthday?.startsWith("--"))
+			return new Date(`2000-${contact?.birthday?.slice(2)}`);
+		else return new Date(contact?.birthday);
+	});
 
 	const {
 		control,

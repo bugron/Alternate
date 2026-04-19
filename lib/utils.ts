@@ -50,14 +50,15 @@ export function getFormattedName(contact: Contact): string {
 }
 
 export function getFormattedDate(date: string): string {
-	let parsedDate;
-	if (!date) parsedDate = new Date();
-	else parsedDate = new Date(date);
+	const isMonthDay = date?.startsWith("--");
+	const parsedDate = new Date(
+		isMonthDay ? `2000-${date.slice(2)}` : date || new Date(),
+	);
 
 	return parsedDate.toLocaleDateString("en-US", {
-		year: "numeric",
-		month: "long",
-		day: "numeric",
+		...(isMonthDay
+			? { month: "long", day: "numeric" }
+			: { year: "numeric", month: "long", day: "numeric" }),
 	});
 }
 
