@@ -1,2 +1,4 @@
-v2.4.7 - Bug Fixes
- - Fixed birthday parsing error when importing contacts from VCF files with partial dates (month-day format) 
+v2.4.7 - New features and Bug Fixes
+ - Fixed birthday parsing error when importing contacts from VCF files with partial dates (month-day format)
+ - Added biometric lock screen and passcode setup modal
+ - Added new country dialing prefixes, including Puerto Rico (+1787 and +1939)

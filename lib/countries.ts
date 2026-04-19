@@ -137,6 +137,8 @@ export const COUNTRIES: Country[] = [
 	{ name: "Philippines", code: "PH", dialCode: "63", flag: "🇵🇭" },
 	{ name: "Poland", code: "PL", dialCode: "48", flag: "🇵🇱" },
 	{ name: "Portugal", code: "PT", dialCode: "351", flag: "🇵🇹" },
+	{ name: "Puerto Rico", code: "PR", dialCode: "1787", flag: "🇵🇷" },
+	{ name: "Puerto Rico", code: "PR", dialCode: "1939", flag: "🇵🇷" },
 	{ name: "Qatar", code: "QA", dialCode: "974", flag: "🇶🇦" },
 	{ name: "Romania", code: "RO", dialCode: "40", flag: "🇷🇴" },
 	{ name: "Russia", code: "RU", dialCode: "7", flag: "🇷🇺" },
